@@ -3,8 +3,11 @@ package Debugging;
 import java.text.DecimalFormat;
 
 import ReturnTypes.FloatPoint;
+import RobotUtilities.MyPosition;
 
 public class ComputerDebugging {
+    public static boolean usingComputer = false;
+
     //this is what actually sends our messages
     private static UdpServer udpServer;
     //this is what we will use to build the messages
@@ -17,7 +20,7 @@ public class ComputerDebugging {
      * Initializes udp server and starts it's thread
      */
     public ComputerDebugging(){
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
         UdpServer.kill = false;
         udpServer = new UdpServer(11115);
         Thread runner = new Thread(udpServer);
@@ -29,20 +32,18 @@ public class ComputerDebugging {
     /**
      * Sends the robot location to the debug computer
      */
-    public static void sendRobotLocation(Robot robot){
+    public static void sendRobotLocation(){
         //return if not using computer
-        if(!Robot.usingComputer){return ;}
+        if(!usingComputer){return ;}
 
         //first send the robot location
         messageBuilder.append("ROBOT,");
-        messageBuilder.append(df.format(robot.getXPos()));
+        messageBuilder.append(df.format(MyPosition.worldXPosition));
         messageBuilder.append(",");
-        messageBuilder.append(df.format(robot.getYPos()));
+        messageBuilder.append(df.format(MyPosition.worldYPosition));
         messageBuilder.append(",");
-        messageBuilder.append(df.format(robot.getAngle_rad()));
+        messageBuilder.append(df.format(MyPosition.worldAngle_rad));
         messageBuilder.append("%");
-
-
     }
 
     /**
@@ -50,7 +51,7 @@ public class ComputerDebugging {
      * @param floatPoint the point you want to send
      */
     public static void sendKeyPoint(FloatPoint floatPoint) {
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
 
 
         messageBuilder.append("P,")
@@ -66,7 +67,7 @@ public class ComputerDebugging {
      * @param floatPoint the point you want to send
      */
     public static void sendLogPoint(FloatPoint floatPoint) {
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
 
 
         messageBuilder.append("LP,")
@@ -84,7 +85,7 @@ public class ComputerDebugging {
      */
     public static void sendLine(FloatPoint point1, FloatPoint point2){
         //return if not using the computer
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
         messageBuilder.append("LINE,")
                 .append(df.format(point1.x))
                 .append(",")
@@ -101,7 +102,7 @@ public class ComputerDebugging {
      * This kills the udpServer background thread
      */
     public static void stopAll() {
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
 
         UdpServer.kill = true;
     }
@@ -110,7 +111,7 @@ public class ComputerDebugging {
      * Sends the data accumulated over the update by adding it to the udpServer
      */
     public static void markEndOfUpdate() {
-        if(!Robot.usingComputer){return;}
+        if(!usingComputer){return;}
         messageBuilder.append("CLEAR,%");
 
         udpServer.addMessage(messageBuilder.toString());
